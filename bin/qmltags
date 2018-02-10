@@ -2,14 +2,16 @@
 
 """Utility script to generate basic ctags for custom QML components.
 Currently only generates 'class' ctags.
+
+Usage:
 Run in the top level of QML code to generate a 'tags' file. By default, all
 files with '.qml' suffix are evaluated:
-    python main.py
+    qmlctags
 Pass an arbitrary number of QML files to generate tags on base of these:
-    python main.py MyComponent.qml buttons/MyButton.qml
-    python main.py screens/*.qml
+    qmlctags MyComponent.qml buttons/MyButton.qml
+    qmlctags screens/*.qml
 """
-    
+
 
 import os.path
 import sys
