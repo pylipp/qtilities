@@ -50,7 +50,8 @@ class VariableTag(Tag):
 def generate_class_tag(filepath):
     """Generate class tag from given component file.
     Raises SystemExit if no main component found."""
-    name, _ = os.path.splitext(os.path.basename(filepath))
+    # remove .ui.qml or .qml suffix
+    name = os.path.basename(filepath).split(".")[0]
 
     # the line defining the main component is used as target point
     pattern = None
