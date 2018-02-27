@@ -5,7 +5,7 @@ import sys
 import os
 
 from PyQt5.QtQuick import QQuickView
-from PyQt5.QtCore import QUrl, QTimer
+from PyQt5.QtCore import QUrl, QTimer, Qt
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
     QPushButton, QLabel, QTabWidget, QFileDialog
 from PyQt5.QtNetwork import QUdpSocket, QHostAddress
@@ -25,12 +25,10 @@ class PreviewTab(QWidget):
         self.qml_view = QQuickView()
         # idea from
         # https://www.ics.com/blog/combining-qt-widgets-and-qml-qwidgetcreatewindowcontainer
-        container = QWidget.createWindowContainer(self.qml_view, self)
-        container.setMinimumSize(400, 600)
-        container.setMaximumSize(400, 600)
+        self.container = QWidget.createWindowContainer(self.qml_view, self)
 
         self.qml_source = QUrl() if source is None else QUrl(source)
-        self.qml_view.setSource(self.qml_source)
+        self.update_source()
 
         self.error_info = QLabel()
 
@@ -38,8 +36,9 @@ class PreviewTab(QWidget):
         self.pause_button.setCheckable(True)
 
         layout = QVBoxLayout()
+        layout.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.error_info)
-        layout.addWidget(container)
+        layout.addWidget(self.container)
         layout.addWidget(self.pause_button)
 
         self.setLayout(layout)
@@ -64,6 +63,8 @@ class PreviewTab(QWidget):
         self.qml_view.setSource(QUrl())
         self.qml_view.engine().clearComponentCache()
         self.qml_view.setSource(self.qml_source)
+        self.container.setMinimumSize(self.qml_view.size())
+        self.container.setMaximumSize(self.qml_view.size())
 
     def check_status(self, status):
         if status == QQuickView.Error:
