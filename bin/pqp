@@ -2,11 +2,12 @@
 """pqp - Python QML previewer"""
 
 import sys
+import os
 
 from PyQt5.QtQuick import QQuickView
 from PyQt5.QtCore import QUrl, QTimer
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
-    QPushButton, QLabel, QTabWidget
+    QPushButton, QLabel, QTabWidget, QFileDialog
 
 
 class PreviewTab(QWidget):
@@ -73,20 +74,40 @@ class PreviewWindow(QMainWindow):
     view unless paused. Potential errors in the QML code are displayed in
     red."""
 
-    def __init__(self, source=None, **kwargs):
+    def __init__(self, *sources, **kwargs):
         """Arguments:
-        source: path of QML component source
+        sources: paths of QML component sources
         kwargs: passed on to PreviewTab
         """
         super().__init__()
 
-        title = "pqp"
-        if source is not None:
-            title += " - {}".format(source)
-        self.setWindowTitle(title)
+        self._tab_kwargs = kwargs
+        self.setWindowTitle("pqp")
 
-        self.setCentralWidget(
-            PreviewTab(source=source, parent=self, **kwargs))
+        self.tab_widget = QTabWidget()
+        self._populate_tab_widget(*sources)
+        self.load_button = QPushButton("Load...")
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.tab_widget)
+        layout.addWidget(self.load_button)
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+        self.load_button.clicked.connect(self.show_dialog)
+
+    def _populate_tab_widget(self, *sources):
+        for source in sources:
+            self.tab_widget.addTab(
+                PreviewTab(source=source, parent=self, **self._tab_kwargs),
+                source)
+
+    def show_dialog(self, _):
+        sources = QFileDialog.getOpenFileNames(
+                caption="Select file(s) to load", filter="(*.qml)",
+                directory=os.getcwd())[0]
+        self._populate_tab_widget(*sources)
 
 
 if __name__ == "__main__":
