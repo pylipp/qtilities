@@ -8,9 +8,14 @@ from PyQt5.QtQuick import QQuickView
 from PyQt5.QtCore import QUrl, QTimer
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
     QPushButton, QLabel, QTabWidget, QFileDialog
+from PyQt5.QtNetwork import QUdpSocket, QHostAddress
 
 
 class PreviewTab(QWidget):
+    """Preview of QML component given by 'source' argument. Repeatedly updates
+    view unless paused. Potential errors in the QML code are displayed in
+    red."""
+
     def __init__(self, source=None, update_interval=2, parent=None):
         """Args:
         update_interval: in seconds
@@ -70,9 +75,10 @@ class PreviewTab(QWidget):
 
 
 class PreviewWindow(QMainWindow):
-    """Preview of QML component given by 'source' argument. Repeatedly updates
-    view unless paused. Potential errors in the QML code are displayed in
-    red."""
+    """Displays several QML previews in tabs. Loading new sources is possible
+    add start-up, via a FileDialog or by running pqpc which will make the
+    internal UDP socket read new sources.
+    """
 
     def __init__(self, *sources, **kwargs):
         """Arguments:
@@ -95,19 +101,30 @@ class PreviewWindow(QMainWindow):
         widget.setLayout(layout)
         self.setCentralWidget(widget)
 
+        self.udp_socket = QUdpSocket()
+        self.udp_socket.bind(QHostAddress.LocalHost, 31415)
+
         self.load_button.clicked.connect(self.show_dialog)
+        self.udp_socket.readyRead.connect(self.read_from_udp_client)
 
     def _populate_tab_widget(self, *sources):
         for source in sources:
             self.tab_widget.addTab(
                 PreviewTab(source=source, parent=self, **self._tab_kwargs),
-                source)
+                os.path.basename(source))
 
     def show_dialog(self, _):
         sources = QFileDialog.getOpenFileNames(
                 caption="Select file(s) to load", filter="(*.qml)",
                 directory=os.getcwd())[0]
         self._populate_tab_widget(*sources)
+
+    def read_from_udp_client(self):
+        while self.udp_socket.hasPendingDatagrams():
+            data, _, _ = self.udp_socket.readDatagram(
+                self.udp_socket.pendingDatagramSize())
+            sources = [d.decode("utf-8") for d in data.splitlines()]
+            self._populate_tab_widget(*sources)
 
 
 if __name__ == "__main__":
