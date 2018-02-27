@@ -91,6 +91,7 @@ class PreviewWindow(QMainWindow):
         self.setWindowTitle("pqp")
 
         self.tab_widget = QTabWidget()
+        self.tab_widget.setTabsClosable(True)
         self._populate_tab_widget(*sources)
         self.load_button = QPushButton("Load...")
 
@@ -106,6 +107,8 @@ class PreviewWindow(QMainWindow):
 
         self.load_button.clicked.connect(self.show_dialog)
         self.udp_socket.readyRead.connect(self.read_from_udp_client)
+        self.tab_widget.tabCloseRequested.connect(
+            lambda i: self.tab_widget.removeTab(i))
 
     def _populate_tab_widget(self, *sources):
         for source in sources:
