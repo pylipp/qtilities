@@ -6,25 +6,15 @@ import sys
 from PyQt5.QtQuick import QQuickView
 from PyQt5.QtCore import QUrl, QTimer
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
-    QPushButton, QLabel
+    QPushButton, QLabel, QTabWidget
 
 
-class PreviewWindow(QMainWindow):
-    """Preview of QML component given by 'source' argument. Repeatedly updates
-    view unless paused. Potential errors in the QML code are displayed in
-    red."""
-
-    def __init__(self, source=None, update_interval=1):
-        """Arguments:
-        source: path of QML component source
+class PreviewTab(QWidget):
+    def __init__(self, source=None, update_interval=2, parent=None):
+        """Args:
         update_interval: in seconds
         """
-        super().__init__()
-
-        title = "pqp"
-        if source is not None:
-            title += " - {}".format(source)
-        self.setWindowTitle(title)
+        super().__init__(parent=parent)
 
         self.qml_view = QQuickView()
         # idea from
@@ -46,9 +36,7 @@ class PreviewWindow(QMainWindow):
         layout.addWidget(container)
         layout.addWidget(self.pause_button)
 
-        widget = QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        self.setLayout(layout)
 
         self.timer = QTimer()
         self.timer.setInterval(update_interval * 1000)
@@ -78,6 +66,27 @@ class PreviewWindow(QMainWindow):
                     self.qml_view.errors()[-1].toString()))
         else:
             self.error_info.clear()
+
+
+class PreviewWindow(QMainWindow):
+    """Preview of QML component given by 'source' argument. Repeatedly updates
+    view unless paused. Potential errors in the QML code are displayed in
+    red."""
+
+    def __init__(self, source=None, **kwargs):
+        """Arguments:
+        source: path of QML component source
+        kwargs: passed on to PreviewTab
+        """
+        super().__init__()
+
+        title = "pqp"
+        if source is not None:
+            title += " - {}".format(source)
+        self.setWindowTitle(title)
+
+        self.setCentralWidget(
+            PreviewTab(source=source, parent=self, **kwargs))
 
 
 if __name__ == "__main__":
