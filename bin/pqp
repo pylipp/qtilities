@@ -1,0 +1,87 @@
+#! /usr/bin/env python
+"""pqp - Python QML previewer"""
+
+import sys
+
+from PyQt5.QtQuick import QQuickView
+from PyQt5.QtCore import QUrl, QTimer
+from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
+    QPushButton, QLabel
+
+
+class PreviewWindow(QMainWindow):
+    """Preview of QML component given by 'source' argument. Repeatedly updates
+    view unless paused. Potential errors in the QML code are displayed in
+    red."""
+
+    def __init__(self, source=None, update_interval=1):
+        """Arguments:
+        source: path of QML component source
+        update_interval: in seconds
+        """
+        super().__init__()
+
+        title = "pqp"
+        if source is not None:
+            title += " - {}".format(source)
+        self.setWindowTitle(title)
+
+        self.qml_view = QQuickView()
+        # idea from
+        # https://www.ics.com/blog/combining-qt-widgets-and-qml-qwidgetcreatewindowcontainer
+        container = QWidget.createWindowContainer(self.qml_view, self)
+        container.setMinimumSize(400, 600)
+        container.setMaximumSize(400, 600)
+
+        self.qml_source = QUrl() if source is None else QUrl(source)
+        self.qml_view.setSource(self.qml_source)
+
+        self.error_info = QLabel()
+
+        self.pause_button = QPushButton("Pause")
+        self.pause_button.setCheckable(True)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.error_info)
+        layout.addWidget(container)
+        layout.addWidget(self.pause_button)
+
+        widget = QWidget()
+        widget.setLayout(layout)
+        self.setCentralWidget(widget)
+
+        self.timer = QTimer()
+        self.timer.setInterval(update_interval * 1000)
+
+        self.pause_button.clicked.connect(self.toggle_updating)
+        self.qml_view.statusChanged.connect(self.check_status)
+        self.timer.timeout.connect(self.update_source)
+
+        self.timer.start()
+
+    def toggle_updating(self, clicked):
+        self.pause_button.setText("Resume" if clicked else "Pause")
+        if clicked:
+            self.timer.stop()
+        else:
+            self.timer.start()
+
+    def update_source(self):
+        self.qml_view.setSource(QUrl())
+        self.qml_view.engine().clearComponentCache()
+        self.qml_view.setSource(self.qml_source)
+
+    def check_status(self, status):
+        if status == QQuickView.Error:
+            self.error_info.setText(
+                "<font color='red'>{}</font>".format(
+                    self.qml_view.errors()[-1].toString()))
+        else:
+            self.error_info.clear()
+
+
+if __name__ == "__main__":
+    app = QApplication([])
+    window = PreviewWindow(*sys.argv[1:])
+    window.show()
+    sys.exit(app.exec_())
