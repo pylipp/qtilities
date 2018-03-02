@@ -116,6 +116,9 @@ class PreviewWindow(QMainWindow):
             self.tab_widget.addTab(
                 PreviewTab(source=source, parent=self, **self._tab_kwargs),
                 os.path.basename(source))
+        if sources:
+            # focus tab that was added last
+            self.tab_widget.setCurrentIndex(self.tab_widget.count() - 1)
 
     def show_dialog(self, _):
         sources = QFileDialog.getOpenFileNames(
