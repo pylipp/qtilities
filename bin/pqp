@@ -3,12 +3,16 @@
 
 import sys
 import os
+import argparse
 
+from PyQt5.QtGui import QFont
 from PyQt5.QtQuick import QQuickView
 from PyQt5.QtCore import QUrl, QTimer, Qt
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
     QPushButton, QLabel, QTabWidget, QFileDialog
 from PyQt5.QtNetwork import QUdpSocket, QHostAddress
+
+DEFAULT_FONT = "Ubuntu Condensed"
 
 
 class PreviewTab(QWidget):
@@ -60,6 +64,8 @@ class PreviewTab(QWidget):
             self.timer.start()
 
     def update_source(self):
+        # idea from
+        # https://stackoverflow.com/questions/17337493/how-to-reload-qml-file-to-qquickview
         self.qml_view.setSource(QUrl())
         self.qml_view.engine().clearComponentCache()
         self.qml_view.setSource(self.qml_source)
@@ -135,7 +141,23 @@ class PreviewWindow(QMainWindow):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=globals()["__doc__"])
+
+    parser.add_argument(
+        "source", nargs="*", help="zero or more source file(s) to preview")
+    parser.add_argument(
+        "--font",
+        help="specify application font (default: {})".format(DEFAULT_FONT),
+        default=DEFAULT_FONT)
+
+    cl_arguments = parser.parse_args()
+
     app = QApplication([])
-    window = PreviewWindow(*sys.argv[1:])
+
+    font = QFont()
+    font.setFamily(cl_arguments.font)
+    app.setFont(font)
+
+    window = PreviewWindow(*cl_arguments.source)
     window.show()
     sys.exit(app.exec_())
