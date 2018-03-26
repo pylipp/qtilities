@@ -7,7 +7,7 @@ with open("README.md") as readme:
 setup(
     name='qtilities',
     version=__version__,
-    description='TODO',
+    description='Utilities for PyQt5 development',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/pylipp/qtilities',
@@ -16,7 +16,7 @@ setup(
     license='GPLv3',
     # classifiers=[],
     packages=find_packages(exclude=['test', 'doc']),
-    scripts=["bin/pqp", "bin/pqpc"],
+    scripts=["bin/pqp", "bin/pqpc", "bin/qmltags"],
     entry_points={
         # 'console_scripts': ['qtilities = qtilities.main:main']
         },

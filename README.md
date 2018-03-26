@@ -14,13 +14,13 @@ A collection of utility programs for PyQt5 development.
     cd qtilities
     make install
 
-## `pqp` and `pqpc`
+## Contents
+
+### `pqp` and `pqpc`
 
 > Python QML Previewer and Client
 
 `pqp` previews QML components and continuously updates while you're editing the source code.
-
-### Usage
 
 #### Start
 
@@ -45,3 +45,21 @@ It sends one or more component paths via UDP to port 31415. The previewer `pqp` 
 #### Pausing/resuming preview
 
 `pqp` continuously updates, regardless of changes in the source code or not. If you wish to test user interaction functionality of your component, you can pause the preview by clicking the 'Preview' button.
+
+### `qmltags`
+
+> Basic ctags generator for QML components
+
+`qmltags` generates 'class' ctags for custom QML components.
+
+Run without arguments to recursively parse the current directory and its subdirectories for QML files
+
+    > qmltags
+
+Alternatively, you can provide one or more paths to QML components:
+
+    > qmltags HackWindow.qml screen/*.qml
+
+This assumes that your shell performs file name expansion.
+
+Note that `qmltags` overwrites a `tags` file in the current working directory if it exists.
