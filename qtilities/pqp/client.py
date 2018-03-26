@@ -6,6 +6,8 @@ import socket
 import sys
 import os
 
+from . import UDP_PORT
+
 
 def main():
     sources = sys.argv[1:]
@@ -18,6 +20,6 @@ def main():
             absolute_sources.append(os.path.join(cwd, source))
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.sendto("\n".join(absolute_sources).encode(), ("localhost", 31415))
+        s.sendto("\n".join(absolute_sources).encode(), ("localhost", UDP_PORT))
     else:
         raise SystemExit("Usage: pqpc FILE [FILE...]")

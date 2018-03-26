@@ -12,6 +12,8 @@ from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
     QPushButton, QLabel, QTabWidget, QFileDialog
 from PyQt5.QtNetwork import QUdpSocket, QHostAddress
 
+from . import UDP_PORT
+
 DEFAULT_FONT = "Ubuntu Condensed"
 
 
@@ -113,7 +115,7 @@ class PreviewWindow(QMainWindow):
         self.setCentralWidget(widget)
 
         self.udp_socket = QUdpSocket()
-        self.udp_socket.bind(QHostAddress.LocalHost, 31415)
+        self.udp_socket.bind(QHostAddress.LocalHost, UDP_PORT)
 
         self.load_button.clicked.connect(self.show_dialog)
         self.udp_socket.readyRead.connect(self.read_from_udp_client)
