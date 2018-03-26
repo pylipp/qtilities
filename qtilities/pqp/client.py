@@ -6,7 +6,8 @@ import socket
 import sys
 import os
 
-if __name__ == "__main__":
+
+def main():
     sources = sys.argv[1:]
 
     if sources:

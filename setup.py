@@ -16,10 +16,13 @@ setup(
     license='GPLv3',
     # classifiers=[],
     packages=find_packages(exclude=['test', 'doc']),
-    scripts=["bin/pqp", "bin/pqpc", "bin/qmltags"],
+    scripts=["bin/qmltags"],
     entry_points={
-        # 'console_scripts': ['qtilities = qtilities.main:main']
-        },
+        'console_scripts': [
+            'pqp = qtilities.pqp.previewer:main',
+            'pqpc = qtilities.pqp.client:main',
+        ]
+    },
     install_requires=[
         "PyQt5",
     ]

@@ -143,7 +143,7 @@ class PreviewWindow(QMainWindow):
             self._populate_tab_widget(*sources)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description=globals()["__doc__"])
 
     parser.add_argument(
