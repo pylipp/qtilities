@@ -16,11 +16,11 @@ setup(
     license='GPLv3',
     # classifiers=[],
     packages=find_packages(exclude=['test', 'doc']),
-    scripts=["bin/qmltags"],
     entry_points={
         'console_scripts': [
             'pqp = qtilities.pqp.previewer:main',
             'pqpc = qtilities.pqp.client:main',
+            'qmltags = qtilities.qmltags.main:main',
         ]
     },
     install_requires=[

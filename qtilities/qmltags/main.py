@@ -6,10 +6,10 @@ Currently only generates 'class' ctags.
 Usage:
 Run in the top level of QML code to generate a 'tags' file. By default, all
 files with '.qml' suffix are evaluated:
-    qmlctags
+    qmltags
 Pass an arbitrary number of QML files to generate tags on base of these:
-    qmlctags MyComponent.qml buttons/MyButton.qml
-    qmlctags screens/*.qml
+    qmltags MyComponent.qml buttons/MyButton.qml
+    qmltags screens/*.qml
 """
 
 
@@ -19,6 +19,7 @@ import glob
 
 # ClassName file    /^Pattern   c
 # variable  file    /^Pattern   v   class:ClassName
+
 
 class Tag(object):
     """Base class representing a ctags Tag."""
@@ -99,7 +100,7 @@ def generate_all_tags(*filepaths):
         tag_file.write("\n".join(tags))
 
 
-if __name__ == "__main__":
+def main():
     filepaths = sys.argv[1:]
     if not filepaths:
         filepaths = glob.glob("**/*.qml", recursive=True)
