@@ -85,6 +85,18 @@ class PreviewTab(QWidget):
         else:
             self.error_info.clear()
 
+    def shutdown(self):
+        """Shutdown tab to prepare for removal. Manually delete QML related
+        members to free resources. Otherwise error messages are printed even
+        after closing the tab, indicating that the QML engine still runs in the
+        background.
+        """
+        # Stop timer to avoid calling update() which requires qml_view which
+        # might already be deleted.
+        self.timer.stop()
+        del self.container
+        del self.qml_view
+
 
 class PreviewWindow(QMainWindow):
     """Displays several QML previews in tabs. Loading new sources is possible
@@ -119,8 +131,7 @@ class PreviewWindow(QMainWindow):
 
         self.load_button.clicked.connect(self.show_dialog)
         self.udp_socket.readyRead.connect(self.read_from_udp_client)
-        self.tab_widget.tabCloseRequested.connect(
-            lambda i: self.tab_widget.removeTab(i))
+        self.tab_widget.tabCloseRequested.connect(self.shutdown_tab)
 
     def _populate_tab_widget(self, *sources):
         for source in sources:
@@ -143,6 +154,12 @@ class PreviewWindow(QMainWindow):
                 self.udp_socket.pendingDatagramSize())
             sources = [d.decode("utf-8") for d in data.splitlines()]
             self._populate_tab_widget(*sources)
+
+    def shutdown_tab(self, index):
+        """Shutdown and remove the tab at given index."""
+        selected_tab = self.tab_widget.widget(index)
+        selected_tab.shutdown()
+        self.tab_widget.removeTab(index)
 
 
 def main():
