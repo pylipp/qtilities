@@ -4,10 +4,11 @@
 import sys
 import os
 import argparse
+import glob
 
 from PyQt5.QtGui import QFont
 from PyQt5.QtQuick import QQuickView
-from PyQt5.QtCore import QUrl, QTimer, Qt
+from PyQt5.QtCore import QUrl, Qt, QFileSystemWatcher, QThread
 from PyQt5.QtWidgets import QVBoxLayout, QWidget, QApplication, QMainWindow,\
     QPushButton, QLabel, QTabWidget, QFileDialog
 from PyQt5.QtNetwork import QUdpSocket, QHostAddress
@@ -18,15 +19,15 @@ DEFAULT_FONT = "Ubuntu Condensed"
 
 
 class PreviewTab(QWidget):
-    """Preview of QML component given by 'source' argument. Repeatedly updates
-    view unless paused. Potential errors in the QML code are displayed in
+    """Preview of QML component given by 'source' argument. If any file in the
+    source's directory or one of its subdirectories is changed, the view is
+    updated unless paused. Potential errors in the QML code are displayed in
     red."""
 
-    def __init__(self, source=None, update_interval=2, parent=None):
-        """Args:
-        update_interval: in seconds
-        """
+    def __init__(self, source=None, parent=None):
         super().__init__(parent=parent)
+
+        self.updating_paused = False
 
         self.qml_view = QQuickView()
         # idea from
@@ -50,27 +51,52 @@ class PreviewTab(QWidget):
 
         self.setLayout(layout)
 
-        self.timer = QTimer()
-        self.timer.setInterval(update_interval * 1000)
+        # Observations using the QFileSystemWatcher in various settings:
+        # A) fileChanged signal and qml file paths
+        #   Collected all *.qml files in the directory of the source and all
+        #   subdirectories and added to the watcher. Now the first change would
+        #   trigger the signal but none of the following
+        # B) additionally connecting directoryChanged signal
+        #   same issue
+        # C) both signals, (sub)directory file paths
+        #   Collected all subdirectories of the source directory and added it to
+        #   the watcher, along with the source directory itself. Works as
+        #   expected
+        # D) directoryChanged signal, (sub)directory file paths
+        #   same as C) without fileChanged signal, works as expected
+        # Eventual solution: D
+        # This implementation also helped me:
+        # https://github.com/penk/qml-livereload/blob/master/main.cpp
+        self.watcher = QFileSystemWatcher()
+        source_dir = os.path.dirname(source)
+        source_paths = glob.glob(os.path.join(source_dir, "*/"), recursive=True)
+        source_paths.append(source_dir)
+        failed_paths = self.watcher.addPaths(source_paths)
+        if failed_paths:
+            print("Failed to watch paths: {}".format(", ".join(failed_paths)))
 
         self.pause_button.clicked.connect(self.toggle_updating)
         self.qml_view.statusChanged.connect(self.check_status)
-        self.timer.timeout.connect(self.update_source)
-
-        self.timer.start()
+        self.watcher.directoryChanged.connect(self.update_source)
 
     def toggle_updating(self, clicked):
         self.pause_button.setText("Resume" if clicked else "Pause")
-        if clicked:
-            self.timer.stop()
-        else:
-            self.timer.start()
+        self.updating_paused = clicked
 
-    def update_source(self):
+        # Update when resuming in case of the source having changed
+        if not self.updating_paused:
+            self.update_source()
+
+    def update_source(self, _=None):
+        if self.updating_paused:
+            return
+
         # idea from
         # https://stackoverflow.com/questions/17337493/how-to-reload-qml-file-to-qquickview
         self.qml_view.setSource(QUrl())
         self.qml_view.engine().clearComponentCache()
+        # avoid error: No such file or directory
+        QThread.msleep(50)
         self.qml_view.setSource(self.qml_source)
         self.container.setMinimumSize(self.qml_view.size())
         self.container.setMaximumSize(self.qml_view.size())
@@ -91,9 +117,6 @@ class PreviewTab(QWidget):
         after closing the tab, indicating that the QML engine still runs in the
         background.
         """
-        # Stop timer to avoid calling update() which requires qml_view which
-        # might already be deleted.
-        self.timer.stop()
         del self.container
         del self.qml_view
 
