@@ -80,6 +80,7 @@ class PreviewTab(QWidget):
         self.watcher.directoryChanged.connect(self.update_source)
 
     def toggle_updating(self, clicked):
+        """Callback for pause button."""
         self.pause_button.setText("Resume" if clicked else "Pause")
         self.updating_paused = clicked
 
@@ -88,6 +89,11 @@ class PreviewTab(QWidget):
             self.update_source()
 
     def update_source(self, _=None):
+        """Method and callback to update the QML view source. The second
+        argument is required to have a slot matching the directoryChanged()
+        interface.
+        This immediately returns if updating is paused.
+        """
         if self.updating_paused:
             return
 
