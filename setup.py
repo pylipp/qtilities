@@ -21,6 +21,7 @@ setup(
             'pqp = qtilities.pqp.previewer:main',
             'pqpc = qtilities.pqp.client:main',
             'qmltags = qtilities.qmltags.main:main',
+            'pyqmlscene = qtilities.pyqmlscene.main:main',
         ]
     },
     install_requires=[
