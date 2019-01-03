@@ -4,14 +4,11 @@ import sys
 
 from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtCore import QUrl
-from PyQt5.QtQuick import QQuickView
-from PyQt5.QtQml import QQmlEngine, QQmlComponent
+from PyQt5.QtQuick import QQuickView, QQuickWindow, QQuickItem
+from PyQt5.QtQml import QQmlApplicationEngine, QQmlComponent
 
 
 def main():
-    # Alternative?
-    # https://github.com/qt/qtdeclarative/blob/5.11/tools/qmlscene/main.cpp#L595
-
     app = QGuiApplication([])
 
     try:
@@ -20,7 +17,24 @@ def main():
         print("Usage: {} QMLFILE".format(os.path.basename(sys.argv[0])))
         sys.exit(1)
 
-    view = QQuickView(path)
+    engine = QQmlApplicationEngine()
 
-    view.show()
+    # Procedure similar to
+    # https://github.com/qt/qtdeclarative/blob/0e9ab20b6a41bfd40aff63c9d3e686606e51e798/tools/qmlscene/main.cpp
+    component = QQmlComponent(engine)
+    component.loadUrl(path)
+    root_object = component.create()
+
+    if isinstance(root_object, QQuickWindow):
+        # Display window object
+        root_object.show()
+    elif isinstance(root_object, QQuickItem):
+        # Display arbitrary QQuickItems by reloading the source since
+        # reparenting the existing root object to the view did not have any
+        # effect. Neither does the QQuickView class have a setContent() method
+        view = QQuickView(path)
+        view.show()
+    else:
+        raise SystemExit("Error displaying {}".format(root_object))
+
     sys.exit(app.exec_())
