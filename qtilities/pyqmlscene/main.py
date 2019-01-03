@@ -1,5 +1,6 @@
 #! /usr/bin/env python
-import os.path
+"""pyqmlscene - Basic Python port of the qmlscene utility"""
+
 import sys
 
 from PyQt5.QtGui import QGuiApplication
@@ -14,7 +15,7 @@ def main():
     try:
         path = QUrl(sys.argv[1])
     except IndexError:
-        print("Usage: {} QMLFILE".format(os.path.basename(sys.argv[0])))
+        print("Usage: pyqmlscene <filename>")
         sys.exit(1)
 
     engine = QQmlApplicationEngine()

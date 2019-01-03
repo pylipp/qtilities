@@ -63,3 +63,11 @@ Alternatively, you can provide one or more paths to QML components:
 This assumes that your shell performs file name expansion.
 
 Note that `qmltags` overwrites a `tags` file in the current working directory if it exists.
+
+### `pyqmlscene`
+
+> Basic Python port of the `qmlscene` utility
+
+Run with a QML file holding an arbitrary component as argument:
+
+    > pyqmlscene MyComponent.qml
