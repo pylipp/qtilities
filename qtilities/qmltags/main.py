@@ -86,18 +86,17 @@ def generate_variable_tags(filepath):
     return [str(v) for v in variables]
 
 
-def generate_all_tags(*filepaths):
+def generate_all_tags(*, filepaths, output_filepath):
     """Generate all tags from an arbitrary number of filepaths and write them to
-    a 'tags' file in the current directory. An existing 'tags' file is
-    overwritten.
+    the given output filepath (silently overwritten if already existing).
     """
     tags = [str(generate_class_tag(f)) for f in filepaths if f.endswith(".qml")]
 
     # for f in filepaths:
     #     tags.extend(generate_variable_tags(f))
 
-    print("Writing {} tags to file...".format(len(tags)))
-    with open("tags", "w") as tag_file:
+    print("Writing {} tags to '{}'...".format(len(tags), output_filepath))
+    with open(output_filepath, "w") as tag_file:
         tag_file.write("\n".join(tags))
 
 
@@ -110,6 +109,10 @@ def _parse_cli():
         "filepaths", metavar="FILEPATH", nargs="*",
         help="QML file path(s) to generate tags from",
     )
+    parser.add_argument(
+        "-o", "--output-filepath", default="tags",
+        help="Path of output tags file (default: 'tags' in current directory)",
+    )
     return parser.parse_args()
 
 
@@ -118,4 +121,6 @@ def main():
     filepaths = options.filepaths
     if not filepaths:
         filepaths = glob.glob("**/*.qml", recursive=True)
-    generate_all_tags(*filepaths)
+    generate_all_tags(
+        filepaths=filepaths, output_filepath=options.output_filepath,
+    )

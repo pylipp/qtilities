@@ -62,7 +62,9 @@ Alternatively, you can provide one or more paths to QML components:
 
 This assumes that your shell performs file name expansion.
 
-Note that `qmltags` overwrites a `tags` file in the current working directory if it exists.
+Note that `qmltags` overwrites a `tags` file in the current working directory if it exists. You can specify a custom output filepath:
+
+    > qmltags HackWindow.qml screen/*.qml -o mytags
 
 ### `pyqmlscene`
 
