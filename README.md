@@ -93,3 +93,8 @@ Run with a QML file holding an arbitrary component as argument:
 
     source .venv/bin/activate
     python -m unittest
+
+### Release
+
+1. Add git tag with bumped version number.
+1. Run `make publish`.
