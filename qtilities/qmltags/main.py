@@ -110,7 +110,7 @@ def _parse_cli():
         help="QML file path(s) to generate tags from",
     )
     parser.add_argument(
-        "-o", "--output-filepath", default="tags",
+        "-o", "--output-filepath", default="qmltags",
         help="Path of output tags file (default: 'tags' in current directory)",
     )
     return parser.parse_args()
