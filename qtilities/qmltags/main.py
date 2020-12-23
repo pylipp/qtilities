@@ -22,7 +22,8 @@ import glob
 # variable  file    /^Pattern   v   class:ClassName
 
 
-class Tag(object):
+
+class Tag:
     """Base class representing a ctags Tag."""
     def __init__(self, name, file, pattern, kind):
         self.name = name
@@ -37,16 +38,21 @@ class Tag(object):
 
 class ClassTag(Tag):
     def __init__(self, name, file, pattern):
-        super(ClassTag, self).__init__(name, file, pattern, "c")
+        super().__init__(name, file, pattern, "c")
 
 
-class VariableTag(Tag):
-    def __init__(self, name, file, pattern, parent):
-        super(VariableTag, self).__init__(name, file, pattern, "v")
+class ClassChildTag(Tag):
+    def __init__(self, name, file, pattern, parent, kind):
+        super().__init__(name, file, pattern, kind)
         self.parent = "class:" + parent
 
     def __str__(self):
-        return super(VariableTag, self).__str__() + "\t" + self.parent
+        return super().__str__() + "\t" + self.parent
+
+
+class VariableTag(ClassChildTag):
+    def __init__(self, name, file, pattern, parent):
+        super().__init__(name, file, pattern, parent, "v")
 
 
 def generate_class_tag(filepath):
