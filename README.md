@@ -79,3 +79,17 @@ Configure `vim` to take the generated `qmltags` file into account:
 Run with a QML file holding an arbitrary component as argument:
 
     > pyqmlscene MyComponent.qml
+
+## Development
+
+### Set up
+
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -U pip
+    pip install -U -e .
+
+### Testing
+
+    source .venv/bin/activate
+    python -m unittest
