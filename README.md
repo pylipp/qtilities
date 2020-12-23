@@ -50,7 +50,7 @@ It sends one or more component paths via UDP to port 31415. The previewer `pqp` 
 
 > Basic ctags generator for QML components
 
-`qmltags` generates 'class' ctags for custom QML components, and 'method' ctags for 'function's.
+`qmltags` generates 'class' ctags for custom QML components, 'method' ctags for 'function's, and 'variables' ctags for 'property's.
 
 Run without arguments to recursively parse the current directory and its subdirectories for QML files
 

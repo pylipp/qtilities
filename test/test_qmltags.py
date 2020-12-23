@@ -10,6 +10,9 @@ TheWindow\ttest/TheWindow.qml\t/^ApplicationWindow {$/;"\tc
 doNothing\ttest/TheWindow.qml\t/^    function doNothing() {}$/;"\tm\tclass:TheWindow
 doLess\ttest/TheWindow.qml\t/^    function doLess(argument) {}$/;"\tm\tclass:TheWindow
 nested\ttest/TheWindow.qml\t/^        function nested() {}$/;"\tm\tclass:TheWindow
+rectColor\ttest/TheWindow.qml\t/^    property alias rectColor: rectangle.color$/;"\tv\tclass:TheWindow
+userLogin\ttest/TheWindow.qml\t/^    property bool userLogin$/;"\tv\tclass:TheWindow
+count\ttest/TheWindow.qml\t/^        property int count: 5$/;"\tv\tclass:TheWindow
 """.splitlines()
 
 

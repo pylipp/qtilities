@@ -5,7 +5,11 @@ ApplicationWindow {
     width: 200
     height: 400
 
+    property alias rectColor: rectangle.color
+    property bool userLogin
+
     Rectangle {
+        id: rectangle
         anchors.fill: parent
         color: "blue"
     }
@@ -16,5 +20,7 @@ ApplicationWindow {
 
     Item {
         function nested() {}
+
+        property int count: 5
     }
 }

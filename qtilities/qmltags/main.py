@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 """Utility script to generate basic ctags for custom QML components.
-Currently generates 'class' ctags from QML component filenames, and 'method'
-ctags from 'function' definitions.
+Currently generates 'class' ctags from QML component filenames, 'method' ctags
+from 'function' definitions, and 'variables' ctags from 'property' definitions.
 
 Usage:
 Run in the top level of QML code to generate a 'tags' file. By default, all
@@ -24,6 +24,7 @@ import re
 # variable  file    /^Pattern   v   class:ClassName
 
 FUNCTION_RE_PATTERN = re.compile(r"    \s*function (.+)\(.*\) {")
+PROPERTY_RE_PATTERN = re.compile(r"    \s*property \w+ (\w+):?.*")
 
 
 class Tag:
@@ -84,16 +85,14 @@ def generate_class_tag(filepath):
 
 
 def generate_variable_tags(filepath):
-    """Generate variable tags from given filepath. Work in progress."""
+    """Generate variable tags from given filepath."""
     parent, _ = os.path.splitext(os.path.basename(filepath))
     variables = []
     with open(filepath) as source:
         for line in source:
-            if line.startswith("    "):
-                try:
-                    name, _ = line.split(":")
-                except ValueError:
-                    continue
+            match = re.match(PROPERTY_RE_PATTERN, line)
+            if match:
+                name = match.group(1)
                 pattern = "/^{}$/;\"".format(line.strip("\n"))
                 tag = VariableTag(name.strip(), filepath, pattern, parent)
                 variables.append(tag)
@@ -123,6 +122,7 @@ def generate_all_tags(*, filepaths, output_filepath):
 
     for f in filepaths:
         tags.extend(generate_method_tags(f))
+        tags.extend(generate_variable_tags(f))
 
     print("Writing {} tags to '{}'...".format(len(tags), output_filepath))
     with open(output_filepath, "w") as tag_file:
