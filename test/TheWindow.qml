@@ -9,4 +9,12 @@ ApplicationWindow {
         anchors.fill: parent
         color: "blue"
     }
+
+    function doNothing() {}
+
+    function doLess(argument) {}
+
+    Item {
+        function nested() {}
+    }
 }

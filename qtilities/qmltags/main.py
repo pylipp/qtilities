@@ -1,7 +1,8 @@
 #! /usr/bin/env python3
 
 """Utility script to generate basic ctags for custom QML components.
-Currently only generates 'class' ctags.
+Currently generates 'class' ctags from QML component filenames, and 'method'
+ctags from 'function' definitions.
 
 Usage:
 Run in the top level of QML code to generate a 'tags' file. By default, all
@@ -17,10 +18,12 @@ import argparse
 import os.path
 import sys
 import glob
+import re
 
 # ClassName file    /^Pattern   c
 # variable  file    /^Pattern   v   class:ClassName
 
+FUNCTION_RE_PATTERN = re.compile(r"    \s*function (.+)\(.*\) {")
 
 
 class Tag:
@@ -53,6 +56,11 @@ class ClassChildTag(Tag):
 class VariableTag(ClassChildTag):
     def __init__(self, name, file, pattern, parent):
         super().__init__(name, file, pattern, parent, "v")
+
+
+class MethodTag(ClassChildTag):
+    def __init__(self, name, file, pattern, parent):
+        super().__init__(name, file, pattern, parent, "m")
 
 
 def generate_class_tag(filepath):
@@ -92,14 +100,29 @@ def generate_variable_tags(filepath):
     return [str(v) for v in variables]
 
 
+def generate_method_tags(filepath):
+    """Generate method tags from given filepath."""
+    parent, _ = os.path.splitext(os.path.basename(filepath))
+    methods = []
+    with open(filepath) as source:
+        for line in source:
+            match = re.match(FUNCTION_RE_PATTERN, line)
+            if match:
+                name = match.group(1)
+                pattern = "/^{}$/;\"".format(line.strip("\n"))
+                tag = MethodTag(name.strip(), filepath, pattern, parent)
+                methods.append(tag)
+    return [str(m) for m in methods]
+
+
 def generate_all_tags(*, filepaths, output_filepath):
     """Generate all tags from an arbitrary number of filepaths and write them to
     the given output filepath (silently overwritten if already existing).
     """
     tags = [str(generate_class_tag(f)) for f in filepaths if f.endswith(".qml")]
 
-    # for f in filepaths:
-    #     tags.extend(generate_variable_tags(f))
+    for f in filepaths:
+        tags.extend(generate_method_tags(f))
 
     print("Writing {} tags to '{}'...".format(len(tags), output_filepath))
     with open(output_filepath, "w") as tag_file:

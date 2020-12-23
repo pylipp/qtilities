@@ -19,7 +19,10 @@ class QmltagsTestCase(unittest.TestCase):
             actual_content = f.read()
 
         excepted_content = \
-            'TheWindow\ttest/TheWindow.qml\t/^ApplicationWindow {$/;"\tc'
+            'TheWindow\ttest/TheWindow.qml\t/^ApplicationWindow {$/;"\tc\n' \
+            'doNothing\ttest/TheWindow.qml\t/^    function doNothing() {}$/;"\tm\tclass:TheWindow\n' \
+            'doLess\ttest/TheWindow.qml\t/^    function doLess(argument) {}$/;"\tm\tclass:TheWindow\n' \
+            'nested\ttest/TheWindow.qml\t/^        function nested() {}$/;"\tm\tclass:TheWindow'
         self.assertEqual(actual_content, excepted_content)
 
         os.unlink(output_filepath)
