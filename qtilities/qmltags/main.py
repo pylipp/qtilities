@@ -13,6 +13,7 @@ Pass an arbitrary number of QML files to generate tags on base of these:
 """
 
 
+import argparse
 import os.path
 import sys
 import glob
@@ -100,8 +101,21 @@ def generate_all_tags(*filepaths):
         tag_file.write("\n".join(tags))
 
 
+def _parse_cli():
+    parser = argparse.ArgumentParser(
+        description=globals()["__doc__"],
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    parser.add_argument(
+        "filepaths", metavar="FILEPATH", nargs="*",
+        help="QML file path(s) to generate tags from",
+    )
+    return parser.parse_args()
+
+
 def main():
-    filepaths = sys.argv[1:]
+    options = _parse_cli()
+    filepaths = options.filepaths
     if not filepaths:
         filepaths = glob.glob("**/*.qml", recursive=True)
     generate_all_tags(*filepaths)
