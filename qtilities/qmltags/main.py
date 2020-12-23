@@ -5,7 +5,7 @@ Currently generates 'class' ctags from QML component filenames, 'method' ctags
 from 'function' definitions, and 'variables' ctags from 'property' definitions.
 
 Usage:
-Run in the top level of QML code to generate a 'tags' file. By default, all
+Run without arguments to generate a 'qmltags' file. By default, all
 files with '.qml' suffix are evaluated:
     qmltags
 Pass an arbitrary number of QML files to generate tags on base of these:
@@ -140,7 +140,7 @@ def _parse_cli():
     )
     parser.add_argument(
         "-o", "--output-filepath", default="qmltags",
-        help="Path of output tags file (default: 'tags' in current directory)",
+        help="Path of output tags file (default: 'qmltags' in current directory)",
     )
     return parser.parse_args()
 
