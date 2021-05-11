@@ -24,12 +24,18 @@ class PreviewTab(QWidget):
     updated unless paused. Potential errors in the QML code are displayed in
     red."""
 
-    def __init__(self, source=None, parent=None):
+    def __init__(self, source=None, parent=None, import_paths=None):
         super().__init__(parent=parent)
 
         self.updating_paused = False
 
         self.qml_view = QQuickView()
+
+        engine = self.qml_view.engine()
+        import_paths = import_paths or []
+        for import_path in import_paths:
+            engine.addImportPath(import_path)
+
         # idea from
         # https://www.ics.com/blog/combining-qt-widgets-and-qml-qwidgetcreatewindowcontainer
         self.container = QWidget.createWindowContainer(self.qml_view, self)
@@ -200,6 +206,12 @@ def main():
         "--font",
         help="specify application font (default: {})".format(DEFAULT_FONT),
         default=DEFAULT_FONT)
+    parser.add_argument(
+        "--import-path", "-I", metavar="PATH", action="append",
+        dest="import_paths",
+        help="Add PATH to the list of QML import paths. Can be specified "
+        "multiple times",
+    )
 
     cl_arguments = parser.parse_args()
 
@@ -209,6 +221,7 @@ def main():
     font.setFamily(cl_arguments.font)
     app.setFont(font)
 
-    window = PreviewWindow(*cl_arguments.source)
+    window = PreviewWindow(*cl_arguments.source,
+                           import_paths=cl_arguments.import_paths)
     window.show()
     sys.exit(app.exec_())
