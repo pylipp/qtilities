@@ -26,5 +26,12 @@ setup(
     },
     install_requires=[
         "PyQt5",
-    ]
+    ],
+    extras_require={
+        "packaging": [
+            "twine>=1.11.0",
+            "setuptools>=38.6.0",
+            "wheel>=0.31.0",
+        ],
+    },
 )

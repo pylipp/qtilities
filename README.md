@@ -96,5 +96,6 @@ Run with a QML file holding an arbitrary component as argument:
 
 ### Release
 
+1. `pip install -U -e .[packaging]`
 1. Add git tag with bumped version number.
 1. Run `make publish`.
